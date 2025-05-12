@@ -15,4 +15,5 @@ import { PanelMenuComponent } from "./shared/ui/panel-menu/panel-menu.component"
 })
 export class AppComponent {
   title = "ALTEN SHOP";
+  
 }

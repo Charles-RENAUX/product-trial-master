@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from "@angular/core";
+import { Component, OnInit, inject, output, signal } from "@angular/core";
 import { Product } from "app/products/data-access/product.model";
 import { ProductsService } from "app/products/data-access/products.service";
 import { ProductFormComponent } from "app/products/ui/product-form/product-form.component";
@@ -6,6 +6,7 @@ import { ButtonModule } from "primeng/button";
 import { CardModule } from "primeng/card";
 import { DataViewModule } from 'primeng/dataview';
 import { DialogModule } from 'primeng/dialog';
+import {CommonModule} from '@angular/common';
 
 const emptyProduct: Product = {
   id: 0,
@@ -29,7 +30,7 @@ const emptyProduct: Product = {
   templateUrl: "./product-list.component.html",
   styleUrls: ["./product-list.component.scss"],
   standalone: true,
-  imports: [DataViewModule, CardModule, ButtonModule, DialogModule, ProductFormComponent],
+  imports: [DataViewModule, CardModule, ButtonModule, DialogModule, ProductFormComponent, CommonModule],
 })
 export class ProductListComponent implements OnInit {
   private readonly productsService = inject(ProductsService);
@@ -38,7 +39,11 @@ export class ProductListComponent implements OnInit {
 
   public isDialogVisible = false;
   public isCreation = false;
+  public isCartsVisible = false;
   public readonly editedProduct = signal<Product>(emptyProduct);
+
+  public carts = new Array<Product>
+  public nbInCart = 0
 
   ngOnInit() {
     this.productsService.get().subscribe();
@@ -76,4 +81,25 @@ export class ProductListComponent implements OnInit {
   private closeDialog() {
     this.isDialogVisible = false;
   }
+
+  public addToCart(product : Product){
+    this.carts.push(product)
+    this.nbItemInCart()
+  }
+
+  public nbItemInCart(){
+    this.nbInCart = this.carts.length
+  }
+
+  public deleteFromCart(product : Product){
+    this.carts = this.carts.filter((cart)=> cart.id !== product.id)
+    this.nbItemInCart()
+  }
+
+  public seeCarts(){
+    this.isCartsVisible = !this.isCartsVisible
+    
+  }
+
+ 
 }

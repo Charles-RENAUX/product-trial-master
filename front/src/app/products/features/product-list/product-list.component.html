@@ -1,20 +1,36 @@
-<h1 class="text-center">Liste des produits</h1>
+<div>
+    <h1 class="text-center">Liste des produits</h1>
+    <button class="bg-yellow-100 text-yellow-800 text-xs font-medium me-2 px-2.5 py-0.5 rounded-sm dark:bg-yellow-900 dark:text-yellow-300 " (click)="seeCarts()">
+        Panier : {{nbInCart}}
+    </button>
+    
+
+</div>
 
 <p-button label="Créer produit" (onClick)="onCreate()" class="block text-center"/>
 
-<p-dataView #dv [value]="products()">
+<p-dataView #dv [value]="products()" *ngIf="!isCartsVisible">
     <ng-template pTemplate="list" let-products>
         @for (product of products; track product) {
             <p-card class="block mb-2">
+        
                 <span class="font-medium text-secondary text-sm">{{ product.category }}</span>
                 <div class="text-lg font-medium text-900 mt-2">{{ product.name }}</div>
+                <span class="flex gap-3 mt-1">
+                    <div class="text-secondary font-medium text-sm mt-2 ">{{ product.description}}</div>
+                    <div class="text-secondary font-medium text-900 mt-2">{{ product.price }}€</div>
+                </span>
+            
 
                 <ng-template pTemplate="footer">
                     <div class="flex gap-3 mt-1">
-                        <p-button label="Modifier" severity="secondary" (onClick)="onUpdate(product)"/>
-                        <p-button label="Supprimer" severity="danger" (onClick)="onDelete(product)" />
+                        <p-button label="Modifier" severity="secondary" (onClick)="onUpdate(product)"icon="pi pi-pen-to-square"/>
+                        <p-button label="Supprimer" severity="danger" (onClick)="onDelete(product)" icon="pi pi-delete-left"/>
+                        <p-button label="Add cart" severity="info" (onClick)="addToCart(product)" icon="pi pi-cart-plus"/>
+                         <p-button label="delete from cart" severity="info" (onClick)="deleteFromCart(product)" icon="pi pi-cart-minus"/>
                     </div>
                 </ng-template>
+                
             </p-card>
         }
     </ng-template>
@@ -29,3 +45,11 @@
         (cancel)="onCancel()"
     />
 </p-dialog>
+
+
+<ul *ngIf="isCartsVisible">
+  <li *ngFor="let cart of carts" >
+    {{ cart.name }}
+  </li>
+</ul>
+    
