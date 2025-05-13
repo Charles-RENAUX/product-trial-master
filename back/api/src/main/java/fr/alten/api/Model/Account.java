@@ -39,6 +39,9 @@ public class Account implements UserDetails {
         this.password = password;
     }
 
+    public Account() {
+    }
+
     public Integer getId() {
         return id;
     }
