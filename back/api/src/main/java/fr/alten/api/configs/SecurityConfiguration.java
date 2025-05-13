@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -29,20 +30,26 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http.csrf()
-                .disable()
-                .authorizeHttpRequests()
-                .requestMatchers("/auth/**")
-                .permitAll()
-                .anyRequest()
-                .authenticated()
-                .and()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.requiresChannel(c -> c.requestMatchers("/actuator/**").requiresInsecure());
+        http.authorizeHttpRequests(request -> {
+            request.requestMatchers(
+                    "/api/v*/registration/**",
+                    "/register*",
+                    "/login",
+                    "/actuator/**").permitAll();
+            request.anyRequest().authenticated();
+        });
+        http.formLogin(fL -> fL.loginPage("/login")
+                .usernameParameter("email").permitAll()
+                .defaultSuccessUrl("/", true)
+                .failureUrl("/login-error"));
+        HttpSecurity jsessionid = http.logout(logOut -> logOut.logoutUrl("/logout")
+                .clearAuthentication(true)
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID", "Idea-2e8e7cee")
+                .logoutSuccessUrl("/login"));;
 
         return http.build();
     }
